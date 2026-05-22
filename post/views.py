@@ -12,8 +12,7 @@ from post.request_serializers import (
 from .models import Post, Like, User
 from tag.models import Tag
 from .serializers import PostSerializer
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
+from drf_spectacular.utils import extend_schema
 
 
 # FBV는 토글 내부 내용에서 확인 가능
@@ -32,9 +31,9 @@ from drf_yasg import openapi
 
 
 class PostListView(APIView):
-    @swagger_auto_schema(
+    @extend_schema(
         operation_id="게시글 목록 조회",
-        operation_description="게시글 목록을 조회합니다.",
+        description="게시글 목록을 조회합니다.",
         responses={
             200: PostSerializer(many=True),
             404: "Not Found",
@@ -46,12 +45,11 @@ class PostListView(APIView):
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @swagger_auto_schema(
+    @extend_schema(
         operation_id="게시글 생성",
-        operation_description="게시글을 생성합니다.",
-        request_body=PostListRequestSerializer,
+        description="게시글을 생성합니다.",
+        request=PostListRequestSerializer,
         responses={204: "No Content", 404: "Not Found", 400: "Bad Request", 401: "Unauthorized"},
-        manual_parameters=[openapi.Parameter("Authorization", openapi.IN_HEADER, description="access token", type=openapi.TYPE_STRING)]
     )
     def post(self, request):
         if not request.user.is_authenticated:
@@ -83,9 +81,9 @@ class PostListView(APIView):
 
 
 class PostDetailView(APIView):
-    @swagger_auto_schema(
+    @extend_schema(
         operation_id="게시글 상세 조회",
-        operation_description="게시글 1개의 상세 정보를 조회합니다.",
+        description="게시글 1개의 상세 정보를 조회합니다.",
         responses={200: PostSerializer, 400: "Bad Request"},
     )
     def get(self, request, post_id):
@@ -98,12 +96,11 @@ class PostDetailView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @swagger_auto_schema(
+    @extend_schema(
         operation_id="게시글 삭제",
-        operation_description="게시글을 삭제합니다.",
-        request_body=SignInRequestSerializer,
+        description="게시글을 삭제합니다.",
+        request=SignInRequestSerializer,
         responses={204: "No Content", 404: "Not Found", 400: "Bad Request", 401: "Unauthorized"},
-        manual_parameters=[openapi.Parameter('Authorization', openapi.IN_HEADER, description="access token", type=openapi.TYPE_STRING)]
     )
     def delete(self, request, post_id):
         if not request.user.is_authenticated:
@@ -127,12 +124,11 @@ class PostDetailView(APIView):
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @swagger_auto_schema(
+    @extend_schema(
         operation_id="게시글 수정",
-        operation_description="게시글을 수정합니다.",
-        request_body=PostDetailRequestSerializer,
+        description="게시글을 수정합니다.",
+        request=PostDetailRequestSerializer,
         responses={204: "No Content", 404: "Not Found", 400: "Bad Request", 401: "Unauthorized"},
-        manual_parameters=[openapi.Parameter('Authorization', openapi.IN_HEADER, description="access token", type=openapi.TYPE_STRING)]
     )
     def put(self, request, post_id):
         if not request.user.is_authenticated:
@@ -177,12 +173,11 @@ class PostDetailView(APIView):
 
 
 class LikeView(APIView):
-    @swagger_auto_schema(
+    @extend_schema(
         operation_id="좋아요 토글",
-        operation_description="좋아요를 토글합니다. 이미 좋아요가 눌려있으면 취소합니다.",
-        request_body=SignInRequestSerializer,
+        description="좋아요를 토글합니다. 이미 좋아요가 눌려있으면 취소합니다.",
+        request=SignInRequestSerializer,
         responses={200: PostSerializer, 404: "Not Found", 400: "Bad Request", 401: "Unauthorized"},
-        manual_parameters=[openapi.Parameter("Authorization", openapi.IN_HEADER, description="access token", type=openapi.TYPE_STRING)]
     )
     def post(self, request, post_id):
         if not request.user.is_authenticated:

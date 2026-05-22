@@ -14,21 +14,20 @@ from post.models import Post, User
 
 from .models import Comment
 from .serializers import CommentSerializer
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
 # Create your views here.
 class CommentListView(APIView):
-    @swagger_auto_schema(
+    @extend_schema(
         operation_id="댓글 목록 조회",
-        operation_description="특정 게시글의 댓글 목록을 조회합니다.",
-        manual_parameters=[
-            openapi.Parameter(
-                "post",
-                openapi.IN_QUERY,
+        description="특정 게시글의 댓글 목록을 조회합니다.",
+        parameters=[
+            OpenApiParameter(
+                name="post",
+                location=OpenApiParameter.QUERY,
                 description="게시글 id",
-                type=openapi.TYPE_INTEGER,
+                type=int,
                 required=True,
             )
         ],
@@ -48,10 +47,10 @@ class CommentListView(APIView):
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @swagger_auto_schema(
+    @extend_schema(
         operation_id="댓글 생성",
-        operation_description="특정 게시글에 댓글을 생성합니다.",
-        request_body=ComentListRequestSerializer,
+        description="특정 게시글에 댓글을 생성합니다.",
+        request=ComentListRequestSerializer,
         responses={
             201: CommentSerializer,
             400: "Bad Request",
@@ -59,14 +58,6 @@ class CommentListView(APIView):
             404: "Not Found",
             403: "Forbidden",
         },
-        manual_parameters=[
-            openapi.Parameter(
-                "Authorization",
-                openapi.IN_HEADER,
-                description="access token",
-                type=openapi.TYPE_STRING,
-            )
-        ],
     )
     def post(self, request):
         if not request.user.is_authenticated:
@@ -96,24 +87,16 @@ class CommentListView(APIView):
 
 
 class CommentDetailView(APIView):
-    @swagger_auto_schema(
+    @extend_schema(
         operation_id="댓글 수정",
-        operation_description="특정 댓글을 수정합니다.",
-        request_body=ComentDetailRequestSerializer,
+        description="특정 댓글을 수정합니다.",
+        request=ComentDetailRequestSerializer,
         responses={
             200: CommentSerializer,
             400: "Bad Request",
             404: "Not Found",
             401: "Unauthorized",
         },
-        manual_parameters=[
-            openapi.Parameter(
-                "Authorization",
-                openapi.IN_HEADER,
-                description="access token",
-                type=openapi.TYPE_STRING,
-            )
-        ],
     )
     def put(self, request, comment_id):
         if not request.user.is_authenticated:
@@ -145,23 +128,15 @@ class CommentDetailView(APIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @swagger_auto_schema(
+    @extend_schema(
         operation_id="댓글 삭제",
-        operation_description="특정 댓글을 삭제합니다.",
+        description="특정 댓글을 삭제합니다.",
         responses={
             204: "No Content",
             400: "Bad Request",
             404: "Not Found",
             401: "Unauthorized",
         },
-        manual_parameters=[
-            openapi.Parameter(
-                "Authorization",
-                openapi.IN_HEADER,
-                description="access token",
-                type=openapi.TYPE_STRING,
-            )
-        ],
     )
     def delete(self, request, comment_id):
         if not request.user.is_authenticated:

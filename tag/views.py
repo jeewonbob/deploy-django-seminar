@@ -7,13 +7,13 @@ from .serializers import TagSerializer
 
 from post.models import Post
 from post.serializers import PostSerializer
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 
 
 class TagListView(APIView):
-  @swagger_auto_schema(
+  @extend_schema(
     operation_id='태그 목록 조회',
-    operation_description='태그 목록을 조회합니다.',
+    description='태그 목록을 조회합니다.',
     responses={200: TagSerializer(many=True)}
   )
   def get(self, request):
@@ -21,10 +21,10 @@ class TagListView(APIView):
     serializer = TagSerializer(instance=tags, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-  @swagger_auto_schema(
+  @extend_schema(
     operation_id='태그 생성',
-    operation_description='태그를 생성합니다.',
-    request_body=TagSerializer,
+    description='태그를 생성합니다.',
+    request=TagSerializer,
     responses={201: TagSerializer}
   )
   def post(self, request):
@@ -42,9 +42,9 @@ class TagListView(APIView):
   
 class TagDetailView(APIView):
   
-  @swagger_auto_schema(
+  @extend_schema(
     operation_id='태그 내부 게시물 조회',
-    operation_description='해당 태그가 달린 게시물을 조회합니다.',
+    description='해당 태그가 달린 게시물을 조회합니다.',
     responses={200: PostSerializer(many=True), 204: 'No Content'}
   )
   def get(self, request, tag_id):
